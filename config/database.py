@@ -7,13 +7,30 @@ import urllib.parse
 
 load_dotenv()
 
-params = urllib.parse.quote_plus(
-    f"DRIVER={{{os.environ.get('SQL_SERVER_DRIVER')}}};"
-    f"SERVER={os.environ.get('SQL_SERVER_HOST')};"
-    f"DATABASE={os.environ.get('SQL_SERVER_DATABASE')};"
-    f"Trusted_Connection={os.environ.get('SQL_TRUSTED_CONNECTION')};"
-)
-URL_DATABASE = f"mssql+pyodbc:///?odbc_connect={params}"
+# Determinar si usar autenticación SQL o Windows
+trusted_connection = os.environ.get('SQL_TRUSTED_CONNECTION', 'no').lower()
+
+if trusted_connection == 'yes':
+    # Windows Authentication
+    params = urllib.parse.quote_plus(
+        f"DRIVER={{{os.environ.get('SQL_SERVER_DRIVER')}}};"
+        f"SERVER={os.environ.get('SQL_SERVER_HOST')};"
+        f"DATABASE={os.environ.get('SQL_SERVER_DATABASE')};"
+        f"Trusted_Connection=yes;"
+    )
+    URL_DATABASE = f"mssql+pyodbc:///?odbc_connect={params}"
+else:
+    # SQL Server Authentication (para Docker)
+    user = os.environ.get('SQL_SERVER_USER')
+    password = os.environ.get('SQL_SERVER_PASSWORD')
+    params = urllib.parse.quote_plus(
+        f"DRIVER={{{os.environ.get('SQL_SERVER_DRIVER')}}};"
+        f"SERVER={os.environ.get('SQL_SERVER_HOST')};"
+        f"DATABASE={os.environ.get('SQL_SERVER_DATABASE')};"
+        f"UID={user};"
+        f"PWD={password};"
+    )
+    URL_DATABASE = f"mssql+pyodbc:///?odbc_connect={params}"
 
 engine = create_engine(URL_DATABASE, echo=False)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

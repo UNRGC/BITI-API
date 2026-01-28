@@ -1,0 +1,19 @@
+services:
+  biti-api:
+    build: .
+    container_name: biti-api
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - biti-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+networks:
+  biti-network:
+    driver: bridge
