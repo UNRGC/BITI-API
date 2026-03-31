@@ -4,6 +4,7 @@ from datetime import datetime
 
 class BitacoraBase(BaseModel):
     """Schema base con campos comunes de dominio"""
+    fecha: datetime
     cliente: str
     empresa: str
     poliza: bool

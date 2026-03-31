@@ -90,6 +90,15 @@ GEMINI_API_KEY=
 # Configuración de la aplicación
 ENVIRONMENT=development
 DEBUG=True
+
+# CORS (usar en producción)
+# Lista CSV de orígenes permitidos (sin comodines)
+CORS_ALLOW_ORIGINS=https://app.tu-dominio.com,https://admin.tu-dominio.com
+# Lista CSV de métodos y headers permitidos
+CORS_ALLOW_METHODS=GET,POST,PUT,PATCH,DELETE,OPTIONS
+CORS_ALLOW_HEADERS=Authorization,Content-Type,Accept,Origin
+# Habilitar solo si usas cookies/sesión entre dominios
+CORS_ALLOW_CREDENTIALS=false
 ```
 
 **Nota:** Si usas SQL Server local en Windows, puedes conectarte desde Docker usando `host.docker.internal` como servidor:
@@ -117,6 +126,17 @@ Una vez iniciado, accede a:
 - **Documentación interactiva (Swagger)**: http://localhost:8000/docs
 - **Documentación alternativa (ReDoc)**: http://localhost:8000/redoc
 
+## 🔐 CORS en producción
+
+Para `ENVIRONMENT=production`, la API aplica CORS usando variables de entorno.
+
+- `CORS_ALLOW_ORIGINS`: obligatorio en producción para habilitar solicitudes cross-origin.
+- `CORS_ALLOW_METHODS`: opcional, por defecto `GET,POST,PUT,PATCH,DELETE,OPTIONS`.
+- `CORS_ALLOW_HEADERS`: opcional, por defecto `Authorization,Content-Type,Accept,Origin`.
+- `CORS_ALLOW_CREDENTIALS`: opcional (`true`/`false`), por defecto `false`.
+
+> Recomendación: usa orígenes exactos de tus frontends y evita `*` en producción.
+
 ## 📖 Uso de la API
 
 ### Procesar un archivo de audio
@@ -130,17 +150,17 @@ curl -X POST "http://localhost:8000/audio/procesar" \
 **Respuesta:**
 ```json
 {
-  "bitacora_id": 1,
-  "transcripcion": "Texto transcrito del audio...",
-  "datos_estructurados": {
+  "status": "Registro guardado",
+  "id": 1,
+  "datos": {
     "cliente": "Nombre del cliente",
     "empresa": "Empresa Inc.",
-    "numero_ticket": "TKT-12345",
-    "tipo_solicitud": "Soporte",
-    "descripcion": "Descripción del problema",
+    "poliza": true,
+    "problema": "Descripción del problema",
     "solucion": "Solución aplicada",
-    "poliza": true
-  }
+    "monto": 0.0
+  },
+  "texto_original": "Texto transcrito del audio..."
 }
 ```
 
